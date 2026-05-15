@@ -1,0 +1,62 @@
+{
+  "entities": {
+    "profile": {
+      "title": "User Profile",
+      "description": "User account information and preferences",
+      "type": "object",
+      "properties": {
+        "displayName": { "type": "string" },
+        "email": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "role": { "type": "string", "enum": ["user", "admin"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["email"]
+    },
+    "initiative": {
+      "title": "Initiative",
+      "description": "A submitted experience or initiative",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "content": { "type": "string" },
+        "category": { "type": "string" },
+        "authorId": { "type": "string" },
+        "authorName": { "type": "string" },
+        "status": { "type": "string", "enum": ["draft", "published", "archived"] },
+        "likesCount": { "type": "integer" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "content", "authorId"]
+    },
+    "comment": {
+      "title": "Comment",
+      "description": "User comments on initiatives",
+      "type": "object",
+      "properties": {
+        "initiativeId": { "type": "string" },
+        "authorId": { "type": "string" },
+        "authorName": { "type": "string" },
+        "text": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["initiativeId", "authorId", "text"]
+    }
+  },
+  "firestore": {
+    "/profiles/{userId}": {
+      "schema": "profile",
+      "description": "User profiles keyed by UID"
+    },
+    "/initiatives/{initiativeId}": {
+      "schema": "initiative",
+      "description": "Main collection for initiatives"
+    },
+    "/initiatives/{initiativeId}/comments/{commentId}": {
+      "schema": "comment",
+      "description": "Comments on a specific initiative"
+    }
+  }
+}
