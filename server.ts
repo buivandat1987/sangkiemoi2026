@@ -22,6 +22,56 @@ const genAI = new GoogleGenAI({
 });
 
 // API Routes
+app.post("/api/ai/generate-initiative", async (req, res) => {
+  try {
+    const { topic } = req.body;
+    if (!topic) {
+      return res.status(400).json({ error: "Topic is required" });
+    }
+
+    const model = genAI.getGenerativeModel({
+      model: "gemini-1.5-flash",
+      systemInstruction: `
+Bạn là một trợ lý chuyên gia viết Sáng kiến kinh nghiệm trong giáo dục tại Việt Nam. 
+Nhiệm vụ của bạn là viết một bài báo cáo sáng kiến kinh nghiệm chi tiết dựa trên chủ đề hoặc yêu cầu của người dùng.
+Bài báo cáo PHẢI tuân thủ chính xác cấu trúc sau:
+
+I. ĐẶT VẤN ĐỀ
+1. Tên sáng kiến hoặc giải pháp: [Tên sáng kiến]
+2. Sự cần thiết, mục đích của việc thực hiện sáng kiến: [Tại sao cần sáng kiến này? Mục đích đạt được là gì?]
+
+II. NỘI DUNG SÁNG KIẾN HOẶC GIẢI PHÁP
+1. Thực trạng tại đơn vị:
+a. Thuận lợi: [Nêu ít nhất 3 điểm thuận lợi]
+b. Khó khăn: [Nêu ít nhất 3 điểm khó khăn]
+2. Nguyên nhân và hạn chế: [Tại sao lại có những khó khăn trên?]
+3. Các biện pháp thực hiện: [Trình bày chi tiết các bước, các phương pháp đã triển khai. Đây là phần quan trọng nhất, hãy viết cụ thể và có tính ứng dụng cao.]
+
+III. ĐÁNH GIÁ VỀ TÍNH MỚI, TÍNH HIỆU QUẢ VÀ KHẢ THI, PHẠM VI ÁP DỤNG
+1. Tính mới: [Sáng kiến này có gì khác biệt so với cách làm cũ?]
+2. Tính hiệu quả và khả thi: [Kết quả đạt được thực tế như thế nào? Có dễ dàng áp dụng không?]
+3. Phạm vi áp dụng: [Có thể áp dụng ở quy mô nào? Tổ, trường, hay liên trường?]
+
+IV. KẾT LUẬN
+[Tóm tắt lại giá trị của sáng kiến và bài học kinh nghiệm.]
+
+Yêu cầu:
+- Ngôn ngữ: Tiếng Việt, trang trọng, chuyên nghiệp trong lĩnh vực giáo dục.
+- Nội dung: Khoa học, cụ thể, dễ hiểu.
+- Không sử dụng các ký tự Markdown đặc biệt như ** hay #. Hãy trình bày theo kiểu văn bản báo cáo truyền thống.
+`,
+    });
+
+    const result = await model.generateContent(`Chủ đề sáng kiến: ${topic}\n\nHãy viết báo cáo sáng kiến kinh nghiệm theo mẫu đã quy định.`);
+    const text = result.response.text();
+    
+    res.json({ text });
+  } catch (error: any) {
+    console.error("Error generating initiative:", error);
+    res.status(500).json({ error: error.message || "Failed to generate initiative" });
+  }
+});
+
 app.post("/api/math/generate", async (req, res) => {
   try {
     const { topic, difficulty, grade, count = 5 } = req.body;

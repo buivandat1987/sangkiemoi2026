@@ -15,7 +15,6 @@ import {
   Loader2,
   Check
 } from 'lucide-react';
-import { GoogleGenAI } from "@google/genai";
 import { 
   onAuthStateChanged, 
   User,
@@ -717,17 +716,21 @@ function AIAssistant({ onApply }: { onApply: (content: string, title: string) =>
     setError('');
 
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-      const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
-        contents: `Chủ đề sáng kiến: ${topic}\n\nHãy viết báo cáo sáng kiến kinh nghiệm theo mẫu đã quy định.`,
-        config: {
-          systemInstruction: TEMPLATE_PROMPT,
-          temperature: 0.7,
-        }
+      const response = await fetch("/api/ai/generate-initiative", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ topic }),
       });
 
-      const text = response.text;
+      if (!response.ok) {
+        throw new Error("Không thể kết nối với máy chủ AI");
+      }
+
+      const data = await response.json();
+      const text = data.text;
+      
       if (!text) throw new Error("Không nhận được nội dung từ AI");
 
       // Extract title if possible
